@@ -10,7 +10,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+ssh://gitolite@code.uber.internal:rt/larch.git"
+    "url": "git+ssh://git@github.com:uber/larch.git"
   },
   "author": "Russ Frank <rf@uber.com>",
   "license": "MIT",
