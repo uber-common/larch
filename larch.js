@@ -37,6 +37,7 @@ function Larch(options) {
 
     self.backends = options.backends;
     assert(Array.isArray(self.backends), 'options.backends must be array');
+    self.enableDebug(true);
 
     if (self.backends.length === 1) {
         self.log = self.logSingleBackend;
@@ -44,6 +45,19 @@ function Larch(options) {
         self.log = self.logMultiBackend;
     }
 }
+
+Larch.prototype.enableDebug =
+function enableDebug(enabled) {
+    var self = this;
+
+    if (enabled) {
+        self.trace = Larch.prototype.trace;
+        self.debug = Larch.prototype.debug;
+    } else {
+        self.trace = noopLog;
+        self.debug = noopLog;
+    }
+};
 
 Larch.prototype.logSingleBackend =
 function logSingleBackend(level, msg, meta, cb) {
@@ -135,3 +149,6 @@ Larch.prototype.error = function error(msg, meta, cb) {
 Larch.prototype.fatal = function fatal(msg, meta, cb) {
     this.log('fatal', msg, meta, cb);
 };
+
+function noopLog() {
+}
