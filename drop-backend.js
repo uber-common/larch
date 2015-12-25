@@ -38,6 +38,10 @@ function DropBackend(options) {
 
 util.inherits(DropBackend, BaseBackend);
 
+DropBackend.prototype.willSample = function willSample(level) {
+    return false;
+};
+
 DropBackend.prototype.log = function log(record, cb) {
     if (typeof cb === 'function') {
         cb();

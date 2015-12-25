@@ -41,8 +41,10 @@ function Larch(options) {
 
     if (self.backends.length === 1) {
         self.log = self.logSingleBackend;
+        self.willSample = self.willSampleSingleBackend;
     } else {
         self.log = self.logMultiBackend;
+        self.willSample = self.willSampleMultiBackend;
     }
 }
 
@@ -86,6 +88,21 @@ function logMultiBackend(level, msg, meta, cb) {
                 results,
                 'larch.log-multi-backend.many-errors'
             ));
+        }
+    }
+};
+
+Larch.prototype.willSampleSingleBackend =
+function willSampleSingleBackend(level) {
+    return self.backends[0].willSample(level);
+};
+
+Larch.prototype.willSampleMultiBackend =
+function willSampleMultiBackend(level) {
+    var i;
+    for (i = 0; i < this.backends.length; i++) {
+        if (this.backends[i].willSample(level)) {
+            return true;
         }
     }
 };

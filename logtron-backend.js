@@ -48,6 +48,10 @@ function LogtronBackend(logtron) {
 
 util.inherits(LogtronBackend, BaseBackend);
 
+LogtronBackend.prototype.willSample = function willSample(level) {
+    return true;
+};
+
 LogtronBackend.prototype.destroy = function destroy(cb) {
     var self = this;
 

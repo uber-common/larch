@@ -92,6 +92,7 @@ function ReservoirBackend(options) {
     self.records = [];
     self.dropCount = {};
     self.logCount = {};
+    self.samplingDecision = NaN;
 }
 
 util.inherits(ReservoirBackend, BaseBackend);
@@ -181,25 +182,45 @@ ReservoirBackend.prototype.flush = function flush() {
     self.count = 0;
 };
 
-ReservoirBackend.prototype.log = function log(record, cb) {
-    var self = this;
+ReservoirBackend.prototype.willSample = function willSample(level) {
+    return this._makeSamplingDecision(level);
+};
 
-    self.count += 1;
-
-    if (self.records.length < self.size) {
-        self.records.push(record);
-    } else {
-        var probability = self.rangeRand(0, self.count);
-        if (probability < self.size) {
-            // record drop for the record we're evicting
-            self.countDrop(self.records[probability].data.level);
-
-            self.records[probability] = record;
-        } else {
-            // record drop for record we're dropping
-            self.countDrop(record.data.level);
-        }
+ReservoirBackend.prototype._makeSamplingDecision =
+function _makeSamplingDecision(level) {
+    if (this.records.length < this.size) {
+        this.samplingDecision = this.records.length;
+        return true;
     }
+
+    var probability = this.rangeRand(0, this.count);
+    if (probability < this.size) {
+        this.samplingDecision = probability; // record sampling decision
+        return true;
+    } else {
+        this.samplingDecision = -1;
+        return false;
+    }
+};
+
+ReservoirBackend.prototype.log = function log(record, cb) {
+    // If we don't already have a sampling decision, make one
+    if (Number.isNaN(this.samplingDecision)) {
+        this._makeSamplingDecision(record.data.level);
+    } 
+
+    this.count += 1;
+
+    if (this.samplingDecision !== -1) {
+        if (this.records[this.samplingDecision]) {
+            this.countDrop(this.records[this.samplingDecision].data.level);
+        }
+        this.records[this.samplingDecision] = record;
+    } else {
+        this.countDrop(record.data.level);
+    }
+
+    this.samplingDecision = NaN;
 
     if (typeof cb === 'function') {
         cb();
