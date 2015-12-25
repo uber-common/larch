@@ -105,6 +105,8 @@ function willSampleMultiBackend(level) {
             return true;
         }
     }
+
+    return false;
 };
 
 Larch.prototype.bootstrap = function bootstrap(cb) {
