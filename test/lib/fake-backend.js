@@ -31,6 +31,7 @@ function FakeBackend(options) {
         return new FakeBackend(options);
     }
     this.logs = [];
+    this.slogs = [];
     this.bootstrapped = false;
     this.destroyed = false;
 }
@@ -39,6 +40,14 @@ util.inherits(FakeBackend, BaseBackend);
 
 FakeBackend.prototype.log = function log(record, cb) {
     this.logs.push(record);
+
+    if (typeof cb === 'function') {
+        cb();
+    }
+};
+
+FakeBackend.prototype.slog = function slog(record, cb) {
+    this.slogs.push(record);
 
     if (typeof cb === 'function') {
         cb();
