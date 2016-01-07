@@ -31,6 +31,9 @@ var Record = require('./record');
 
 module.exports = ReservoirBackend;
 
+var DO_NOT_SAMPLE = -1;
+var APPEND_TO_ARRAY = -2;
+
 function ReservoirBackend(options) {
     if (!(this instanceof ReservoirBackend)) {
         return new ReservoirBackend(options);
@@ -184,7 +187,7 @@ ReservoirBackend.prototype.flush = function flush() {
 
 ReservoirBackend.prototype.willSample = function willSample(level) {
     this.samplingDecision = this._makeSamplingDecision(level);
-    if (this.samplingDecision !== -1) {
+    if (this.samplingDecision !== DO_NOT_SAMPLE) {
         return true;
     } else {
         return false;
@@ -194,50 +197,39 @@ ReservoirBackend.prototype.willSample = function willSample(level) {
 ReservoirBackend.prototype._makeSamplingDecision =
 function _makeSamplingDecision(level) {
     if (this.records.length < this.size) {
-        return this.records.length;
+        return APPEND_TO_ARRAY;
     }
 
     var probability = this.rangeRand(0, this.count);
     if (probability < this.size) {
         return probability;
     } else {
-        return -1;
+        return DO_NOT_SAMPLE;
     }
 };
 
 ReservoirBackend.prototype.log = function log(record, cb) {
     // If we don't already have a sampling decision, make one
-    var decision = this._makeSamplingDecision(record.data.level);
+    this.samplingDecision = this._makeSamplingDecision(record.data.level);
 
-    this.count += 1;
-
-    if (decision !== -1) {
-        if (this.records[decision]) {
-            this.countDrop(this.records[decision].data.level);
-        }
-        this.records[decision] = record;
-    } else {
-        this.countDrop(record.data.level);
-    }
-
-    if (typeof cb === 'function') {
-        cb();
-    }
+    this.slog(record, cb);
 };
 
 ReservoirBackend.prototype.slog = function slog(record, cb) {
-    // If we don't already have a sampling decision, make one
-    if (this.samplingDecision !== null) {
-        this.samplingDecision = this._makeSamplingDecision(record.data.level);
-    } 
+    if (this.samplingDecision === null) {
+        // Invalid to call this method without a sampling decision already made
+        throw SampledLogWithoutSamplingDecision();
+    }
 
     this.count += 1;
 
-    if (this.samplingDecision !== -1) {
-        if (this.records[this.samplingDecision]) {
+    if (this.samplingDecision !== DO_NOT_SAMPLE) {
+        if (this.samplingDecision === APPEND_TO_ARRAY) {
+            this.records.push(record);
+        } else if (this.records[this.samplingDecision]) {
             this.countDrop(this.records[this.samplingDecision].data.level);
+            this.records[this.samplingDecision] = record;
         }
-        this.records[this.samplingDecision] = record;
     } else {
         this.countDrop(record.data.level);
     }
