@@ -29,8 +29,14 @@ var Record = require('../record');
 var FakeBackend = require('./lib/fake-backend');
 
 test('ReservoirBackend willSample is accurate', function t1(assert) {
+    var time = 0;
     function fakeRangeRand(lo, hi) {
-        return 6;
+        time += 1;
+        if (time === 1) {
+            return 6;
+        } else {
+            return 0;
+        }
     }
 
     var backend = FakeBackend();
@@ -50,17 +56,17 @@ test('ReservoirBackend willSample is accurate', function t1(assert) {
     var samplingDecisions = [];
 
     samplingDecisions[0] = reservoir.willSample('error');
-    reservoir.log(new Record('error', 'timed out', {}));
+    reservoir.slog(new Record('error', 'timed out', {}));
     samplingDecisions[1] = reservoir.willSample('error');
-    reservoir.log(new Record('error', 'timed out', {}));
+    reservoir.slog(new Record('error', 'timed out', {}));
     samplingDecisions[2] = reservoir.willSample('error');
-    reservoir.log(new Record('error', 'timed out', {}));
+    reservoir.slog(new Record('error', 'timed out', {}));
     samplingDecisions[3] = reservoir.willSample('error');
-    reservoir.log(new Record('error', 'timed out', {}));
+    reservoir.slog(new Record('error', 'timed out', {}));
     samplingDecisions[4] = reservoir.willSample('error');
-    reservoir.log(new Record('error', 'timed out', {}));
+    reservoir.slog(new Record('error', 'timed out', {}));
     samplingDecisions[5] = reservoir.willSample('error');
-    reservoir.log(new Record('warn', 'thing failed', {}));
+    reservoir.slog(new Record('warn', 'thing failed', {}));
 
     console.log('samplingDecisions', samplingDecisions);
     assert.deepEqual(samplingDecisions, [true, true, true, true, true, false]);

@@ -183,30 +183,52 @@ ReservoirBackend.prototype.flush = function flush() {
 };
 
 ReservoirBackend.prototype.willSample = function willSample(level) {
-    return this._makeSamplingDecision(level);
+    this.samplingDecision = this._makeSamplingDecision(level);
+    if (this.samplingDecision !== -1) {
+        return true;
+    } else {
+        return false;
+    }
 };
 
 ReservoirBackend.prototype._makeSamplingDecision =
 function _makeSamplingDecision(level) {
     if (this.records.length < this.size) {
-        this.samplingDecision = this.records.length;
-        return true;
+        return this.records.length;
     }
 
     var probability = this.rangeRand(0, this.count);
     if (probability < this.size) {
-        this.samplingDecision = probability; // record sampling decision
-        return true;
+        return probability;
     } else {
-        this.samplingDecision = -1;
-        return false;
+        return -1;
     }
 };
 
 ReservoirBackend.prototype.log = function log(record, cb) {
     // If we don't already have a sampling decision, make one
+    var decision = this._makeSamplingDecision(record.data.level);
+
+    this.count += 1;
+
+    if (decision !== -1) {
+        if (this.records[decision]) {
+            this.countDrop(this.records[decision].data.level);
+        }
+        this.records[decision] = record;
+    } else {
+        this.countDrop(record.data.level);
+    }
+
+    if (typeof cb === 'function') {
+        cb();
+    }
+};
+
+ReservoirBackend.prototype.slog = function slog(record, cb) {
+    // If we don't already have a sampling decision, make one
     if (Number.isNaN(this.samplingDecision)) {
-        this._makeSamplingDecision(record.data.level);
+        this.samplingDecision = this._makeSamplingDecision(record.data.level);
     } 
 
     this.count += 1;

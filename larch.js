@@ -41,9 +41,11 @@ function Larch(options) {
 
     if (self.backends.length === 1) {
         self.log = self.logSingleBackend;
+        self.slog = self.slogSingleBackend;
         self.willSample = self.willSampleSingleBackend;
     } else {
         self.log = self.logMultiBackend;
+        self.slog = self.slogMultiBackend;
         self.willSample = self.willSampleMultiBackend;
     }
 }
@@ -63,12 +65,38 @@ function enableDebug(enabled) {
 
 Larch.prototype.logSingleBackend =
 function logSingleBackend(level, msg, meta, cb) {
+    var record = new Record(level, msg, meta, null);
+    this.backends[0].log(record, cb);
+};
+
+Larch.prototype.slogSingleBackend =
+function slogSingleBackend(level, msg, meta, cb) {
+    var record = new Record(level, msg, meta, null);
+    this.backends[0].slog(record, cb);
+};
+
+Larch.prototype.slogMultiBackend =
+function slogMultiBackend(level, msg, meta, cb) {
     var self = this;
 
     var record = new Record(level, msg, meta, null);
 
-    self.backends[0].log(record, cb);
+    collectParallel(self.backends, writeBackend, writesDone);
+
+    function writeBackend(backend, i, backendCb) {
+        backend.slog(record, backendCb);
+    }
+
+    function writesDone(ignored, results) {
+        if (typeof cb === 'function') {
+            cb(Errors.resultArrayToError(
+                results,
+                'larch.log-multi-backend.many-errors'
+            ));
+        }
+    }
 };
+
 
 Larch.prototype.logMultiBackend =
 function logMultiBackend(level, msg, meta, cb) {
@@ -167,6 +195,34 @@ Larch.prototype.error = function error(msg, meta, cb) {
 
 Larch.prototype.fatal = function fatal(msg, meta, cb) {
     this.log('fatal', msg, meta, cb);
+};
+
+Larch.prototype.strace = function strace(msg, meta, cb) {
+    this.slog('trace', msg, meta, cb);
+};
+
+Larch.prototype.sdebug = function sdebug(msg, meta, cb) {
+    this.slog('debug', msg, meta, cb);
+};
+
+Larch.prototype.sinfo = function sinfo(msg, meta, cb) {
+    this.slog('info', msg, meta, cb);
+};
+
+Larch.prototype.saccess = function saccess(msg, meta, cb) {
+    this.slog('access', msg, meta, cb);
+};
+
+Larch.prototype.swarn = function swarn(msg, meta, cb) {
+    this.slog('warn', msg, meta, cb);
+};
+
+Larch.prototype.serror = function serror(msg, meta, cb) {
+    this.slog('error', msg, meta, cb);
+};
+
+Larch.prototype.sfatal = function sfatal(msg, meta, cb) {
+    this.slog('fatal', msg, meta, cb);
 };
 
 function noopLog() {
