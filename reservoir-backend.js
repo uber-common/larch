@@ -92,7 +92,7 @@ function ReservoirBackend(options) {
     self.records = [];
     self.dropCount = {};
     self.logCount = {};
-    self.samplingDecision = NaN;
+    self.samplingDecision = null;
 }
 
 util.inherits(ReservoirBackend, BaseBackend);
@@ -227,7 +227,7 @@ ReservoirBackend.prototype.log = function log(record, cb) {
 
 ReservoirBackend.prototype.slog = function slog(record, cb) {
     // If we don't already have a sampling decision, make one
-    if (Number.isNaN(this.samplingDecision)) {
+    if (this.samplingDecision !== null) {
         this.samplingDecision = this._makeSamplingDecision(record.data.level);
     } 
 
@@ -242,7 +242,7 @@ ReservoirBackend.prototype.slog = function slog(record, cb) {
         this.countDrop(record.data.level);
     }
 
-    this.samplingDecision = NaN;
+    this.samplingDecision = null;
 
     if (typeof cb === 'function') {
         cb();
