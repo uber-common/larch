@@ -97,7 +97,6 @@ function slogMultiBackend(level, msg, meta, cb) {
     }
 };
 
-
 Larch.prototype.logMultiBackend =
 function logMultiBackend(level, msg, meta, cb) {
     var self = this;

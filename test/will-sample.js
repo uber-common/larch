@@ -114,4 +114,21 @@ test('ReservoirBackend willSample is accurate', function t1(assert) {
     assert.end();
 });
 
+test('ReservoirBackend slog throws without sampling decision', function t2(assert) {
+    var backend = FakeBackend();
+    var timer = Timer(0);
+
+    var reservoir = ReservoirBackend({
+        backend: backend,
+        size: 5,
+        timers: timer
+    });
+
+    assert.throws(function callSlog() {
+        reservoir.slog('warn', 'message', {});
+    }, /Reservoir backend `slog` method must be called after/);
+
+    assert.end();
+});
+
 function noop() {}
