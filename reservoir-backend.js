@@ -25,6 +25,7 @@ var util = require('util');
 var timers = require('timers');
 var NullStatsd = require('uber-statsd-client/null');
 var extend = require('xtend');
+var typedError = require('error/typed');
 
 var BaseBackend = require('./base-backend');
 var Record = require('./record');
@@ -33,6 +34,12 @@ module.exports = ReservoirBackend;
 
 var DO_NOT_SAMPLE = -1;
 var APPEND_TO_ARRAY = -2;
+
+var SampledLogWithoutSamplingDecision = typedError({
+    type: 'larch.reservoir-backend.sampled-log-without-sampling-decision',
+    message: 'Reservoir backend `slog` method must be called after a call ' +
+        'to ReservoirBackend#willSample'
+});
 
 function ReservoirBackend(options) {
     if (!(this instanceof ReservoirBackend)) {
