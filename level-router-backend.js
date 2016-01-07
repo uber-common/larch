@@ -120,6 +120,10 @@ LevelRouterBackend.prototype.willSample = function willSample(level) {
     return this.backends[level].willSample(level);
 };
 
+LevelRouterBackend.prototype.slog = function slog(record, cb) {
+    this.backends[record.data.level].slog(record, cb);
+};
+
 LevelRouterBackend.prototype.log = function log(record, cb) {
     var self = this;
 
