@@ -38,7 +38,7 @@ function DropBackend(options) {
 
 util.inherits(DropBackend, BaseBackend);
 
-DropBackend.prototype.willSample = function willSample(msg, level) {
+DropBackend.prototype.willSample = function willSample(level, msg) {
     return false;
 };
 

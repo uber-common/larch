@@ -72,7 +72,7 @@ BaseBackend.prototype.slog = function slog(record, cb) {
     this.log(record, cb);
 };
 
-BaseBackend.prototype.willSample = function willSample(msg, level) {
+BaseBackend.prototype.willSample = function willSample(level, msg) {
     return true;
 };
 

@@ -116,8 +116,8 @@ LevelRouterBackend.prototype.destroy = function bootstrap(cb) {
     }
 };
 
-LevelRouterBackend.prototype.willSample = function willSample(msg, level) {
-    return this.backends[level].willSample(msg, level);
+LevelRouterBackend.prototype.willSample = function willSample(level, msg) {
+    return this.backends[level].willSample(level, msg);
 };
 
 LevelRouterBackend.prototype.slog = function slog(record, cb) {

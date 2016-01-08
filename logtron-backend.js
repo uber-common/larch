@@ -48,7 +48,7 @@ function LogtronBackend(logtron) {
 
 util.inherits(LogtronBackend, BaseBackend);
 
-LogtronBackend.prototype.willSample = function willSample(msg, level) {
+LogtronBackend.prototype.willSample = function willSample(level, msg) {
     return true;
 };
 

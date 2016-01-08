@@ -120,15 +120,15 @@ function logMultiBackend(level, msg, meta, cb) {
 };
 
 Larch.prototype.willSampleSingleBackend =
-function willSampleSingleBackend(msg, level) {
-    return self.backends[0].willSample(msg, level);
+function willSampleSingleBackend(level, msg) {
+    return self.backends[0].willSample(level, msg);
 };
 
 Larch.prototype.willSampleMultiBackend =
-function willSampleMultiBackend(msg, level) {
+function willSampleMultiBackend(level, msg) {
     var i;
     for (i = 0; i < this.backends.length; i++) {
-        if (this.backends[i].willSample(msg, level)) {
+        if (this.backends[i].willSample(level, msg)) {
             return true;
         }
     }
