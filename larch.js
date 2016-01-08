@@ -121,7 +121,7 @@ function logMultiBackend(level, msg, meta, cb) {
 
 Larch.prototype.willSampleSingleBackend =
 function willSampleSingleBackend(level, msg) {
-    return self.backends[0].willSample(level, msg);
+    return this.backends[0].willSample(level, msg);
 };
 
 Larch.prototype.willSampleMultiBackend =
