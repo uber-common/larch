@@ -35,6 +35,32 @@ var logger = LarchLogger({
 logger.warn('warn string', {meta: 'object'});
 ```
 
+## Using `willSample($level, $msg)`
+
+The top level Larch object, as well as each backend, has a method `willSample`.
+This method returns `true` if any backend after this backend in the object tree
+is interested in taking a log with level `$level`. This can be used to avoid
+allocating space for large meta objects, like so:
+
+```javascript
+if (larch.willSample('warn', 'thing failed!')) {
+    larch.swarn('thing failed!', {
+        count: this.count,
+        length: this.length,
+        largeArrayOfThings: this.bigArray,
+        hugeAmountOfUsefulDebuggingInfo: this.stuff
+    });
+}
+```
+
+This way, we can do less work when we have a lot of logs because we don't have
+to allocate the large meta object.
+
+Regular log methods (`.log`, `.error`, etc) will first compute a sampling
+decision. Log methods prefixed with an `s` (`.slog`, `.serror`, etc) will use
+a previously computed sampling decision. Calling an `s` method without first
+calling `.willSample($level, $msg)` will throw.
+
 # Contributors
 
 * [Russ Frank](http://github.com/rf)

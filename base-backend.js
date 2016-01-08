@@ -41,6 +41,16 @@ function BaseBackend(options) {
     );
 
     assert(
+        typeof self.willSample === 'function',
+        '`willSample` method of BaseBackend must be overridden by function'
+    );
+
+    assert(
+        typeof self.slog === 'function',
+        '`slog` method of BaseBackend must be overridden by function'
+    );
+
+    assert(
         typeof self.bootstrap === 'function',
         '`bootstrap` method of BaseBackend must be overridden by function'
     );
@@ -57,6 +67,14 @@ function BaseBackend(options) {
 }
 
 BaseBackend.prototype.log = function log(record, cb) {};
+
+BaseBackend.prototype.slog = function slog(record, cb) {
+    this.log(record, cb);
+};
+
+BaseBackend.prototype.willSample = function willSample(level, msg) {
+    return true;
+};
 
 BaseBackend.prototype.bootstrap = function bootstrap(cb) {
     cb();

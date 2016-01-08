@@ -25,11 +25,21 @@ var util = require('util');
 var timers = require('timers');
 var NullStatsd = require('uber-statsd-client/null');
 var extend = require('xtend');
+var typedError = require('error/typed');
 
 var BaseBackend = require('./base-backend');
 var Record = require('./record');
 
 module.exports = ReservoirBackend;
+
+var DO_NOT_SAMPLE = -1;
+var APPEND_TO_ARRAY = -2;
+
+var SampledLogWithoutSamplingDecision = typedError({
+    type: 'larch.reservoir-backend.sampled-log-without-sampling-decision',
+    message: 'Reservoir backend `slog` method must be called after a call ' +
+        'to ReservoirBackend#willSample'
+});
 
 function ReservoirBackend(options) {
     if (!(this instanceof ReservoirBackend)) {
@@ -92,6 +102,7 @@ function ReservoirBackend(options) {
     self.records = [];
     self.dropCount = {};
     self.logCount = {};
+    self.samplingDecision = null;
 }
 
 util.inherits(ReservoirBackend, BaseBackend);
@@ -181,25 +192,56 @@ ReservoirBackend.prototype.flush = function flush() {
     self.count = 0;
 };
 
-ReservoirBackend.prototype.log = function log(record, cb) {
-    var self = this;
-
-    self.count += 1;
-
-    if (self.records.length < self.size) {
-        self.records.push(record);
+ReservoirBackend.prototype.willSample = function willSample(level, msg) {
+    this.samplingDecision = this._makeSamplingDecision(level);
+    if (this.samplingDecision !== DO_NOT_SAMPLE) {
+        return true;
     } else {
-        var probability = self.rangeRand(0, self.count);
-        if (probability < self.size) {
-            // record drop for the record we're evicting
-            self.countDrop(self.records[probability].data.level);
-
-            self.records[probability] = record;
-        } else {
-            // record drop for record we're dropping
-            self.countDrop(record.data.level);
-        }
+        return false;
     }
+};
+
+ReservoirBackend.prototype._makeSamplingDecision =
+function _makeSamplingDecision(level) {
+    if (this.records.length < this.size) {
+        return APPEND_TO_ARRAY;
+    }
+
+    var probability = this.rangeRand(0, this.count);
+    if (probability < this.size) {
+        return probability;
+    } else {
+        return DO_NOT_SAMPLE;
+    }
+};
+
+ReservoirBackend.prototype.log = function log(record, cb) {
+    // If we don't already have a sampling decision, make one
+    this.samplingDecision = this._makeSamplingDecision(record.data.level);
+
+    this.slog(record, cb);
+};
+
+ReservoirBackend.prototype.slog = function slog(record, cb) {
+    if (this.samplingDecision === null) {
+        // Invalid to call this method without a sampling decision already made
+        throw SampledLogWithoutSamplingDecision();
+    }
+
+    this.count += 1;
+
+    if (this.samplingDecision !== DO_NOT_SAMPLE) {
+        if (this.samplingDecision === APPEND_TO_ARRAY) {
+            this.records.push(record);
+        } else if (this.records[this.samplingDecision]) {
+            this.countDrop(this.records[this.samplingDecision].data.level);
+            this.records[this.samplingDecision] = record;
+        }
+    } else {
+        this.countDrop(record.data.level);
+    }
+
+    this.samplingDecision = null;
 
     if (typeof cb === 'function') {
         cb();
