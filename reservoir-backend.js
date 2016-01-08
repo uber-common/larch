@@ -192,7 +192,7 @@ ReservoirBackend.prototype.flush = function flush() {
     self.count = 0;
 };
 
-ReservoirBackend.prototype.willSample = function willSample(level) {
+ReservoirBackend.prototype.willSample = function willSample(msg, level) {
     this.samplingDecision = this._makeSamplingDecision(level);
     if (this.samplingDecision !== DO_NOT_SAMPLE) {
         return true;
