@@ -23,7 +23,6 @@
 var assert = require('assert');
 var util = require('util');
 var timers = require('timers');
-var NullStatsd = require('uber-statsd-client/null');
 var extend = require('xtend');
 var typedError = require('error/typed');
 
@@ -56,13 +55,7 @@ function ReservoirBackend(options) {
         typeof self.backend.logMany === 'function',
         'options.backend must be object with `logMany` method'
     );
-
-    self.statsd = options.statsd || NullStatsd();
-    assert(
-        typeof self.statsd === 'object' &&
-        typeof self.statsd.gauge === 'function',
-        'options.statsd must be object with `gauge` method'
-    );
+    delete options.backend;
 
     self.size = options.size || 100;
     assert(
@@ -70,12 +63,14 @@ function ReservoirBackend(options) {
         self.size >= 5 && self.size < 1000000000,
         'options.size must be number 5 >= n > 1000000000'
     );
+    delete options.size;
 
     self.rangeRand = options.rangeRand || ReservoirBackend.rangeRand;
     assert(
         typeof self.rangeRand === 'function',
         'options.rangeRand must be function'
     );
+    delete options.rangeRand;
 
     self.flushInterval = options.flushInterval || 50;
     assert(
@@ -83,6 +78,7 @@ function ReservoirBackend(options) {
         self.flushInterval > 1 && self.flushInterval < 1000000,
         'options.flushInterval must be number 1 > n > 1000000'
     );
+    delete options.flushInterval;
 
     self.timers = options.timers || timers;
     assert(
@@ -90,12 +86,28 @@ function ReservoirBackend(options) {
         typeof self.timers.setTimeout === 'function',
         'options.timers must be object with setTimeout function'
     );
+    delete options.timers;
 
     self.now = options.now || Date.now;
     assert(
         typeof self.now === 'function',
         'options.now must be function'
     );
+    delete options.now;
+
+    if (
+        options.statsd && 
+        typeof options.statsd.timing === 'function' && 
+        typeof options.statsd.increment === 'function'
+    ) {
+        self.statsd = options.statsd;
+    } else {
+        self.statsd = {
+            increment: noop,
+            timing: noop
+        };
+    }
+    delete options.statsd;
 
     self.timer = null;
     self.count = 0;
@@ -103,6 +115,9 @@ function ReservoirBackend(options) {
     self.dropCount = {};
     self.logCount = {};
     self.samplingDecision = null;
+
+    var keys = Object.keys(options);
+    assert(keys.length === 0, 'unrecognized options keys: ' + keys.join(', '));
 }
 
 util.inherits(ReservoirBackend, BaseBackend);
@@ -304,3 +319,5 @@ ReservoirBackend.prototype.setupTimer = function setupTimer() {
         self.timer = self.timers.setTimeout(onTimer, self.flushInterval);
     }
 };
+
+function noop() {}
