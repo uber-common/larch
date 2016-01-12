@@ -4,6 +4,7 @@
   "description": "reservoir sampled logger",
   "main": "larch.js",
   "scripts": {
+    "lint": "eslint $(git ls-files | grep '.js$') && echo '# linter passed'",
     "test": "tape test|tap-spec",
     "check-licence": "uber-licence --dry",
     "add-licence": "uber-licence"
@@ -15,6 +16,9 @@
   "author": "Russ Frank <rf@uber.com>",
   "license": "MIT",
   "devDependencies": {
+    "eslint": "^1.10.3",
+    "eslint-config-perf-standard": "^2.1.0",
+    "eslint-plugin-perf-standard": "^1.0.2",
     "rezult": "^1.0.0",
     "tap-spec": "^4.1.0",
     "tape": "^4.2.0",
