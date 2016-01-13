@@ -40,84 +40,73 @@ var SampledLogWithoutSamplingDecision = typedError({
         'to ReservoirBackend#willSample'
 });
 
+/* eslint max-statements: [0, 40] */
 function ReservoirBackend(options) {
     if (!(this instanceof ReservoirBackend)) {
         return new ReservoirBackend(options);
     }
 
-    var self = this;
+    BaseBackend.call(this);
 
-    BaseBackend.call(self);
-
-    self.backend = options.backend;
+    this.backend = options.backend;
     assert(
-        typeof self.backend === 'object' &&
-        typeof self.backend.logMany === 'function',
+        typeof this.backend === 'object' &&
+        typeof this.backend.logMany === 'function',
         'options.backend must be object with `logMany` method'
     );
-    delete options.backend;
 
-    self.size = options.size || 100;
+    this.size = options.size || 100;
     assert(
-        typeof self.size === 'number' &&
-        self.size >= 5 && self.size < 1000000000,
+        typeof this.size === 'number' &&
+        this.size >= 5 && this.size < 1000000000,
         'options.size must be number 5 >= n > 1000000000'
     );
-    delete options.size;
 
-    self.rangeRand = options.rangeRand || ReservoirBackend.rangeRand;
+    this.rangeRand = options.rangeRand || ReservoirBackend.rangeRand;
     assert(
-        typeof self.rangeRand === 'function',
+        typeof this.rangeRand === 'function',
         'options.rangeRand must be function'
     );
-    delete options.rangeRand;
 
-    self.flushInterval = options.flushInterval || 50;
+    this.flushInterval = options.flushInterval || 50;
     assert(
-        typeof self.flushInterval === 'number' &&
-        self.flushInterval > 1 && self.flushInterval < 1000000,
+        typeof this.flushInterval === 'number' &&
+        this.flushInterval > 1 && this.flushInterval < 1000000,
         'options.flushInterval must be number 1 > n > 1000000'
     );
-    delete options.flushInterval;
 
-    self.timers = options.timers || timers;
+    this.timers = options.timers || timers;
     assert(
-        typeof self.timers === 'object' &&
-        typeof self.timers.setTimeout === 'function',
+        typeof this.timers === 'object' &&
+        typeof this.timers.setTimeout === 'function',
         'options.timers must be object with setTimeout function'
     );
-    delete options.timers;
 
-    self.now = options.now || Date.now;
+    this.now = options.now || Date.now;
     assert(
-        typeof self.now === 'function',
+        typeof this.now === 'function',
         'options.now must be function'
     );
-    delete options.now;
 
     if (
-        options.statsd && 
-        typeof options.statsd.timing === 'function' && 
+        options.statsd &&
+        typeof options.statsd.timing === 'function' &&
         typeof options.statsd.increment === 'function'
     ) {
-        self.statsd = options.statsd;
+        this.statsd = options.statsd;
     } else {
-        self.statsd = {
+        this.statsd = {
             increment: noop,
             timing: noop
         };
     }
-    delete options.statsd;
 
-    self.timer = null;
-    self.count = 0;
-    self.records = [];
-    self.dropCount = {};
-    self.logCount = {};
-    self.samplingDecision = null;
-
-    var keys = Object.keys(options);
-    assert(keys.length === 0, 'unrecognized options keys: ' + keys.join(', '));
+    this.timer = null;
+    this.count = 0;
+    this.records = [];
+    this.dropCount = {};
+    this.logCount = {};
+    this.samplingDecision = null;
 }
 
 util.inherits(ReservoirBackend, BaseBackend);
@@ -172,7 +161,10 @@ ReservoirBackend.prototype.flush = function flush() {
     var i;
     var keys = Object.keys(self.dropCount);
     for (i = 0; i < keys.length; i++) {
-        self.statsd.increment('larch.dropped.' + keys[i], self.dropCount[keys[i]]);
+        self.statsd.increment(
+            'larch.dropped.' + keys[i],
+            self.dropCount[keys[i]]
+        );
         self.dropCount[keys[i]] = 0;
     }
 
@@ -182,7 +174,10 @@ ReservoirBackend.prototype.flush = function flush() {
 
     keys = Object.keys(self.logCount);
     for (i = 0; i < keys.length; i++) {
-        self.statsd.increment('larch.logged.' + keys[i], self.logCount[keys[i]]);
+        self.statsd.increment(
+            'larch.logged.' + keys[i],
+            self.logCount[keys[i]]
+        );
         self.logCount[keys[i]] = 0;
     }
 
@@ -259,7 +254,7 @@ ReservoirBackend.prototype.slog = function slog(record, cb) {
     this.samplingDecision = null;
 
     if (typeof cb === 'function') {
-        cb();
+        return cb();
     }
 };
 
