@@ -156,8 +156,7 @@ ReservoirBackend.prototype.flush = function flush() {
     var keys = Object.keys(self.dropCount);
     for (i = 0; i < keys.length; i++) {
         self.statsd.increment(
-            'larch.dropped.' + keys[i],
-            self.dropCount[keys[i]]
+            'larch.dropped.' + keys[i], self.dropCount[keys[i]]
         );
         self.dropCount[keys[i]] = 0;
     }
@@ -169,8 +168,7 @@ ReservoirBackend.prototype.flush = function flush() {
     keys = Object.keys(self.logCount);
     for (i = 0; i < keys.length; i++) {
         self.statsd.increment(
-            'larch.logged.' + keys[i],
-            self.logCount[keys[i]]
+            'larch.logged.' + keys[i], self.logCount[keys[i]]
         );
         self.logCount[keys[i]] = 0;
     }

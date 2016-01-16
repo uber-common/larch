@@ -71,7 +71,8 @@ test('resultArrayToError with some errors', function t3(assert) {
     var err = Errors.resultArrayToError(array, 'thing.error');
 
     assert.ok(err.type === 'thing.error', 'error type is right');
-    assert.ok(err.message === '2 errors. Example: foobar', 'error message is right');
+    assert.ok(err.message === '2 errors. Example: foobar',
+        'error message is right');
     assert.ok(err.count === 2, 'error count is right');
     assert.ok(err.example === 'foobar', 'error example is right');
     assert.ok(err.errors[0] === err1, 'errors[0] is err1');
@@ -94,7 +95,8 @@ test('resultArrayToError with all errors', function t4(assert) {
     var err = Errors.resultArrayToError(array, 'thing.error');
 
     assert.ok(err.type === 'thing.error', 'error type is right');
-    assert.ok(err.message === '3 errors. Example: foobar', 'error message is right');
+    assert.ok(err.message === '3 errors. Example: foobar',
+        'error message is right');
     assert.ok(err.count === 3, 'error count is right');
     assert.ok(err.example === 'foobar', 'error example is right');
     assert.ok(err.errors[0] === err1, 'errors[0] is err1');
