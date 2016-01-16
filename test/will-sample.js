@@ -28,13 +28,14 @@ var Record = require('../record');
 
 var FakeBackend = require('./lib/fake-backend');
 
+/*eslint max-statements: [2, 40]*/
 test('ReservoirBackend willSample is accurate', function t1(assert) {
     var time = 0;
     function fakeRangeRand(lo, hi) {
         time += 1;
         if (time === 1) {
             return 6;
-        } else {
+        } else {
             return 0;
         }
     }
