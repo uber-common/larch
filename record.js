@@ -40,10 +40,10 @@ Record.prototype.serialize = function serialize() {
 };
 
 Record.prototype.toJSON = function toJSON() {
-    var i;
     if (!this.hasBeenMerged) {
-        for (i in this.meta) if (this.meta.hasOwnProperty(i)) {
-            this.data[i] = this.meta[i];
+        var keys = Object.keys(this.meta);
+        for (var i = 0; i < keys.length; i++) {
+            this.data[keys[i]] = this.meta[keys[i]];
         }
 
         this.hasBeenMerged = true;
