@@ -21,8 +21,8 @@
 'use strict';
 
 var assert = require('assert');
-var collectParallel = require('collect-parallel/array');
 
+var FanoutRequest = require('./lib/unordered-fanout-request.js');
 var Errors = require('./errors');
 
 module.exports = BaseBackend;
@@ -87,15 +87,21 @@ BaseBackend.prototype.destroy = function destroy(cb) {
 BaseBackend.prototype.logMany = function logMany(records, cb) {
     var self = this;
 
-    collectParallel(records, eachRecord, logsDone);
-
-    function eachRecord(record, i, recordCb) {
-        self.log(record, recordCb);
-    }
-
-    function logsDone(ignored, results) {
-        if (typeof cb === 'function') {
-            cb(Errors.resultArrayToError(results, 'larch.log-many.many-errors'));
-        }
-    }
+    var req = FanoutRequest.alloc(self, logEachRecord, onLogsDone);
+    req.run(records, cb);
 };
+
+function logEachRecord(req, record, _, cb) {
+    req.self.log(record, cb);
+}
+
+function onLogsDone(req, results, cb) {
+    FanoutRequest.release(req);
+
+    if (typeof cb === 'function') {
+        return cb(Errors.resultArrayToError(
+            results, 'larch.log-many.many-errors'
+        ));
+    }
+}
+

@@ -33,10 +33,13 @@ var ManyErrors = module.exports.ManyErrors = TypedError({
 module.exports.resultArrayToError = resultArrayToError;
 
 function resultArrayToError(items, type, message) {
-    var errors = [];
+    var errors = null;
     var i;
     for (i = 0; i < items.length; i++) {
         if (items[i].err) {
+            if (!errors) {
+                errors = [];
+            }
             errors.push(items[i].err);
         }
     }
@@ -47,7 +50,7 @@ function resultArrayToError(items, type, message) {
 module.exports.errorArrayToError = errorArrayToError;
 
 function errorArrayToError(errors, type, message) {
-    if (errors.length === 0) {
+    if (!errors) {
         return null;
     } else if (errors.length === 1) {
         return errors[0];
