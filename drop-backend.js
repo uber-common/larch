@@ -39,13 +39,13 @@ DropBackend.prototype.willSample = function willSample(level, msg) {
 DropBackend.prototype.slog = 
 DropBackend.prototype.log = function log(record, cb) {
     if (typeof cb === 'function') {
-        cb();
+        return cb();
     }
 };
 
 DropBackend.prototype.logMany = function logMany(records, cb) {
     if (typeof cb === 'function') {
-        cb();
+        return cb();
     }
 };
 

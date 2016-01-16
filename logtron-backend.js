@@ -84,7 +84,7 @@ LogtronBackend.prototype.logMany = function logMany(records, cb) {
         }
 
         if (done >= records.length) {
-            cb(Errors.errorArrayToError(
+            return cb(Errors.errorArrayToError(
                 errors,
                 'larch.logtron-backend.log-many.many-errors'
             ));

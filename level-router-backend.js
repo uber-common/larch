@@ -83,7 +83,7 @@ LevelRouterBackend.prototype.bootstrap = function bootstrap(cb) {
 
     function bootstrapsDone(ignored, results) {
         if (typeof cb === 'function') {
-            cb(Errors.resultArrayToError(
+            return cb(Errors.resultArrayToError(
                 results,
                 'larch.level-router-backend.bootstrap.many-errors'
             ));
@@ -102,7 +102,7 @@ LevelRouterBackend.prototype.destroy = function bootstrap(cb) {
 
     function destroysDone(ignored, results) {
         if (typeof cb === 'function') {
-            cb(Errors.resultArrayToError(
+            return cb(Errors.resultArrayToError(
                 results,
                 'larch.level-router-backend.destroy.many-errors'
             ));

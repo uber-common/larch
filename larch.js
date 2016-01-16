@@ -83,7 +83,7 @@ function slogMultiBackend(level, msg, meta, cb) {
 
     function writesDone(ignored, results) {
         if (typeof cb === 'function') {
-            cb(Errors.resultArrayToError(
+            return cb(Errors.resultArrayToError(
                 results,
                 'larch.log-multi-backend.many-errors'
             ));
@@ -105,7 +105,7 @@ function logMultiBackend(level, msg, meta, cb) {
 
     function writesDone(ignored, results) {
         if (typeof cb === 'function') {
-            cb(Errors.resultArrayToError(
+            return cb(Errors.resultArrayToError(
                 results,
                 'larch.log-multi-backend.many-errors'
             ));
@@ -141,7 +141,9 @@ Larch.prototype.bootstrap = function bootstrap(cb) {
 
     function bootstrapsDone(ignored, results) {
         if (typeof cb === 'function') {
-            cb(Errors.resultArrayToError(results, 'larch.bootstrap.many-errors'));
+            return cb(Errors.resultArrayToError(
+                results, 'larch.bootstrap.many-errors'
+            ));
         }
     }
 };
@@ -157,7 +159,9 @@ Larch.prototype.destroy = function destroy(cb) {
 
     function destroysDone(ignored, results) {
         if (typeof cb === 'function') {
-            cb(Errors.resultArrayToError(results, 'larch.destroy.many-errors'));
+            return cb(Errors.resultArrayToError(
+                results, 'larch.destroy.many-errors'
+            ));
         }
     }
 };

@@ -37,7 +37,7 @@ FakeBackend.prototype.log = function log(record, cb) {
     this.logs.push(record);
 
     if (typeof cb === 'function') {
-        cb();
+        return cb();
     }
 };
 
@@ -45,7 +45,7 @@ FakeBackend.prototype.slog = function slog(record, cb) {
     this.slogs.push(record);
 
     if (typeof cb === 'function') {
-        cb();
+        return cb();
     }
 };
 
