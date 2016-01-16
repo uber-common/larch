@@ -50,7 +50,7 @@ LogtronBackend.prototype.destroy = function destroy(cb) {
     self.logtron.close(cb);
 };
 
-LogtronBackend.prototype.slog = 
+LogtronBackend.prototype.slog =
 LogtronBackend.prototype.log = function log(record, cb) {
     var self = this;
 

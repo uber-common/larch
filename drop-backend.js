@@ -34,7 +34,7 @@ DropBackend.prototype.willSample = function willSample(level, msg) {
     return false;
 };
 
-DropBackend.prototype.slog = 
+DropBackend.prototype.slog =
 DropBackend.prototype.log = function log(record, cb) {
     if (typeof cb === 'function') {
         return cb();
