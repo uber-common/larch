@@ -26,13 +26,7 @@ var collectParallel = require('collect-parallel/array');
 var Record = require('./record');
 var Errors = require('./errors');
 
-module.exports = Larch;
-
 function Larch(options) {
-    if (!(this instanceof Larch)) {
-        return new Larch(options);
-    }
-
     var self = this;
 
     self.backends = options.backends;
@@ -223,6 +217,12 @@ Larch.prototype.serror = function serror(msg, meta, cb) {
 Larch.prototype.sfatal = function sfatal(msg, meta, cb) {
     this.slog('fatal', msg, meta, cb);
 };
+
+module.exports = createLarch;
+
+function createLarch(options) {
+    return new Larch(options);
+}
 
 function noopLog() {
 }

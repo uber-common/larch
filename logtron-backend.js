@@ -27,13 +27,7 @@ var LogtronEntry = require('logtron/entry');
 var Errors = require('./errors');
 var BaseBackend = require('./base-backend');
 
-module.exports = LogtronBackend;
-
 function LogtronBackend(logtron) {
-    if (!(this instanceof LogtronBackend)) {
-        return new LogtronBackend(logtron);
-    }
-
     var self = this;
 
     BaseBackend.call(self);
@@ -97,3 +91,9 @@ LogtronBackend.prototype.logMany = function logMany(records, cb) {
         }
     }
 };
+
+module.exports = createLogtronBackend;
+
+function createLogtronBackend(opts) {
+    return new LogtronBackend(opts);
+}

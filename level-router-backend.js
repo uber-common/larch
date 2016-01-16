@@ -28,13 +28,7 @@ var BaseBackend = require('./base-backend');
 var Errors = require('./errors');
 var Levels = require('./levels');
 
-module.exports = LevelRouterBackend;
-
 function LevelRouterBackend(options) {
-    if (!(this instanceof LevelRouterBackend)) {
-        return new LevelRouterBackend(options);
-    }
-
     var self = this;
 
     BaseBackend.call(self);
@@ -129,3 +123,9 @@ LevelRouterBackend.prototype.log = function log(record, cb) {
 
     self.backends[record.data.level].log(record, cb);
 };
+
+module.exports = createLevelRouterBackend;
+
+function createLevelRouterBackend(opts) {
+    return new LevelRouterBackend(opts);
+}

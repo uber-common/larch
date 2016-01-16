@@ -24,13 +24,7 @@ var util = require('util');
 
 var BaseBackend = require('./base-backend');
 
-module.exports = DropBackend;
-
 function DropBackend(options) {
-    if (!(this instanceof DropBackend)) {
-        return new DropBackend(options);
-    }
-
     var self = this;
 
     BaseBackend.call(self);
@@ -54,3 +48,9 @@ DropBackend.prototype.logMany = function logMany(records, cb) {
         cb();
     }
 };
+
+module.exports = createDropBackend;
+
+function createDropBackend(opts) {
+    return new DropBackend(opts);
+}

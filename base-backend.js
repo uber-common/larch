@@ -28,10 +28,6 @@ var Errors = require('./errors');
 module.exports = BaseBackend;
 
 function BaseBackend(options) {
-    if (!(this instanceof BaseBackend)) {
-        return new BaseBackend(options);
-    }
-
     var self = this;
 
     assert(

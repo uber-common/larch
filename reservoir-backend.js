@@ -29,8 +29,6 @@ var typedError = require('error/typed');
 var BaseBackend = require('./base-backend');
 var Record = require('./record');
 
-module.exports = ReservoirBackend;
-
 var DO_NOT_SAMPLE = -1;
 var APPEND_TO_ARRAY = -2;
 
@@ -42,10 +40,6 @@ var SampledLogWithoutSamplingDecision = typedError({
 
 /* eslint max-statements: [0, 40] */
 function ReservoirBackend(options) {
-    if (!(this instanceof ReservoirBackend)) {
-        return new ReservoirBackend(options);
-    }
-
     BaseBackend.call(this);
 
     this.backend = options.backend;
@@ -314,5 +308,11 @@ ReservoirBackend.prototype.setupTimer = function setupTimer() {
         self.timer = self.timers.setTimeout(onTimer, self.flushInterval);
     }
 };
+
+module.exports = createReservoirBackend;
+
+function createReservoirBackend(opts) {
+    return new ReservoirBackend(opts);
+}
 
 function noop() {}

@@ -24,12 +24,7 @@ var util = require('util');
 
 var BaseBackend = require('../../base-backend');
 
-module.exports = FakeBackend;
-
 function FakeBackend(options) {
-    if (!(this instanceof FakeBackend)) {
-        return new FakeBackend(options);
-    }
     this.logs = [];
     this.slogs = [];
     this.bootstrapped = false;
@@ -63,3 +58,9 @@ FakeBackend.prototype.destroy = function destroy(cb) {
     this.destroyed = true;
     cb();
 };
+
+module.exports = createFakeBackend;
+
+function createFakeBackend(opts) {
+    return new FakeBackend(opts);
+}
