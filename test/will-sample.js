@@ -84,7 +84,13 @@ test('ReservoirBackend willSample is accurate', function t1(assert) {
 
     assert.deepEquals(
         backend.logs[0].meta,
-        {dropCount: {warn: 1}, flushInterval: 50, size: 5},
+        {
+            dropCount: {
+                warn: 1
+            },
+            flushInterval: 50,
+            size: 5
+        },
         'first log contains correct meta'
     );
 
@@ -114,7 +120,8 @@ test('ReservoirBackend willSample is accurate', function t1(assert) {
     assert.end();
 });
 
-test('ReservoirBackend slog throws without sampling decision', function t2(assert) {
+test('ReservoirBackend slog throws without sampling decision', {
+}, function t2(assert) {
     var backend = FakeBackend();
     var timer = Timer(0);
 

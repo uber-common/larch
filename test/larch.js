@@ -28,7 +28,9 @@ var FakeBackend = require('./lib/fake-backend');
 test('larch with single backend uses logSingleBackend', function t1(assert) {
     var backend = FakeBackend();
 
-    var logger = Larch({backends: [backend]});
+    var logger = Larch({
+        backends: [backend]
+    });
 
     assert.ok(
         logger.log === logger.logSingleBackend,
@@ -38,14 +40,20 @@ test('larch with single backend uses logSingleBackend', function t1(assert) {
     logger.bootstrap();
     assert.ok(backend.bootstrapped, 'backend was bootstrapped');
 
-    logger.error('test', {foo: 'bar'});
+    logger.error('test', {
+        foo: 'bar'
+    });
 
     var jsonRecord = backend.logs[0].toJSON();
     delete jsonRecord.time;
 
     assert.deepEqual(
         jsonRecord,
-        {foo: 'bar', message: 'test', level: 'error'},
+        {
+            foo: 'bar',
+            message: 'test',
+            level: 'error'
+        },
         'log backend gets message'
     );
 
@@ -59,21 +67,29 @@ test('larch with muiltple backends uses logMultiBackend', function t2(assert) {
     var backend = FakeBackend();
     var backend2 = FakeBackend();
 
-    var logger = Larch({backends: [backend, backend2]});
+    var logger = Larch({
+        backends: [backend, backend2]
+    });
 
     assert.ok(
         logger.log === logger.logMultiBackend,
         'logger is using logMultiBackend'
     );
 
-    logger.error('test', {foo: 'bar'});
+    logger.error('test', {
+        foo: 'bar'
+    });
 
     var jsonRecord = backend.logs[0].toJSON();
     delete jsonRecord.time;
 
     assert.deepEqual(
         jsonRecord,
-        {foo: 'bar', message: 'test', level: 'error'},
+        {
+            foo: 'bar',
+            message: 'test',
+            level: 'error'
+        },
         'log backend gets message'
     );
 
@@ -82,7 +98,11 @@ test('larch with muiltple backends uses logMultiBackend', function t2(assert) {
 
     assert.deepEqual(
         jsonRecord2,
-        {foo: 'bar', message: 'test', level: 'error'},
+        {
+            foo: 'bar',
+            message: 'test',
+            level: 'error'
+        },
         'log backend 2 gets message'
     );
 
@@ -92,16 +112,24 @@ test('larch with muiltple backends uses logMultiBackend', function t2(assert) {
 test('calling Larch#slog correctly calls $Backend#slog', function t3(assert) {
     var backend = FakeBackend();
 
-    var logger = Larch({backends: [backend]});
+    var logger = Larch({
+        backends: [backend]
+    });
 
-    logger.slog('warn', 'test', {foo: 'bar'});
+    logger.slog('warn', 'test', {
+        foo: 'bar'
+    });
 
     var record = backend.slogs[0].toJSON();
     delete record.time;
 
     assert.deepEqual(
         record,
-        {foo: 'bar', message: 'test', level: 'warn'},
+        {
+            foo: 'bar',
+            message: 'test',
+            level: 'warn'
+        },
         'backend#slog receives record'
     );
 
