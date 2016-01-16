@@ -28,14 +28,12 @@ var Errors = require('./errors');
 var BaseBackend = require('./base-backend');
 
 function LogtronBackend(logtron) {
-    var self = this;
+    BaseBackend.call(this);
 
-    BaseBackend.call(self);
-
-    self.logtron = logtron;
+    this.logtron = logtron;
     assert(
-        typeof self.logtron === 'object' &&
-        typeof self.logtron.writeEntry === 'function',
+        typeof this.logtron === 'object' &&
+        typeof this.logtron.writeEntry === 'function',
         'LogtronBackend expected first argument to be Logtron instance'
     );
 }

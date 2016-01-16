@@ -27,20 +27,18 @@ var Record = require('./record');
 var Errors = require('./errors');
 
 function Larch(options) {
-    var self = this;
+    this.backends = options.backends;
+    assert(Array.isArray(this.backends), 'options.backends must be array');
+    this.enableDebug(true);
 
-    self.backends = options.backends;
-    assert(Array.isArray(self.backends), 'options.backends must be array');
-    self.enableDebug(true);
-
-    if (self.backends.length === 1) {
-        self.log = self.logSingleBackend;
-        self.slog = self.slogSingleBackend;
-        self.willSample = self.willSampleSingleBackend;
+    if (this.backends.length === 1) {
+        this.log = this.logSingleBackend;
+        this.slog = this.slogSingleBackend;
+        this.willSample = this.willSampleSingleBackend;
     } else {
-        self.log = self.logMultiBackend;
-        self.slog = self.slogMultiBackend;
-        self.willSample = self.willSampleMultiBackend;
+        this.log = this.logMultiBackend;
+        this.slog = this.slogMultiBackend;
+        this.willSample = this.willSampleMultiBackend;
     }
 }
 

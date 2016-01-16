@@ -28,36 +28,34 @@ var Errors = require('./errors');
 module.exports = BaseBackend;
 
 function BaseBackend(options) {
-    var self = this;
-
     assert(
-        typeof self.log === 'function' &&
-        self.log !== BaseBackend.prototype.log,
+        typeof this.log === 'function' &&
+        this.log !== BaseBackend.prototype.log,
         '`log` method of BaseBackend must be overridden by function'
     );
 
     assert(
-        typeof self.willSample === 'function',
+        typeof this.willSample === 'function',
         '`willSample` method of BaseBackend must be overridden by function'
     );
 
     assert(
-        typeof self.slog === 'function',
+        typeof this.slog === 'function',
         '`slog` method of BaseBackend must be overridden by function'
     );
 
     assert(
-        typeof self.bootstrap === 'function',
+        typeof this.bootstrap === 'function',
         '`bootstrap` method of BaseBackend must be overridden by function'
     );
 
     assert(
-        typeof self.destroy === 'function',
+        typeof this.destroy === 'function',
         '`destroy` method of BaseBackend must be overridden by function'
     );
 
     assert(
-        typeof self.logMany === 'function',
+        typeof this.logMany === 'function',
         '`logMany` method of BaseBackend must be overriden by function'
     );
 }

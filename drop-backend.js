@@ -25,9 +25,7 @@ var util = require('util');
 var BaseBackend = require('./base-backend');
 
 function DropBackend(options) {
-    var self = this;
-
-    BaseBackend.call(self);
+    BaseBackend.call(this);
 }
 
 util.inherits(DropBackend, BaseBackend);

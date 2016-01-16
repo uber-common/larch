@@ -29,43 +29,41 @@ var Errors = require('./errors');
 var Levels = require('./levels');
 
 function LevelRouterBackend(options) {
-    var self = this;
+    BaseBackend.call(this);
 
-    BaseBackend.call(self);
-
-    self.backends = options.backends;
+    this.backends = options.backends;
     assert(
-        typeof self.backends === 'object',
+        typeof this.backends === 'object',
         'options.backends must be object'
     );
 
     var levels = Object.keys(Levels.BY_NAME);
     var seen = levels.filter(function f(item) {
-        return item in self.backends;
-    });
+        return item in this.backends;
+    }, this);
 
     assert(
         seen === levels.length ||
-            (typeof self.backends.default === 'object' &&
-            typeof self.backends.default.log === 'function'),
+            (typeof this.backends.default === 'object' &&
+            typeof this.backends.default.log === 'function'),
         'expected options.backends to have 1 backend per level or a default' +
             ' backend'
     );
 
-    if (self.backends.default) {
+    if (this.backends.default) {
         levels.forEach(function e(level) {
-            if (!self.backends[level]) {
-                self.backends[level] = self.backends.default;
+            if (!this.backends[level]) {
+                this.backends[level] = this.backends.default;
             }
-        });
+        }, this);
     }
 
-    self.uniqueBackends = [];
+    this.uniqueBackends = [];
 
     var i;
     for (i = 0; i < levels.length; i++) {
-        if (self.uniqueBackends.indexOf(self.backends[levels[i]]) === -1) {
-            self.uniqueBackends.push(self.backends[levels[i]]);
+        if (this.uniqueBackends.indexOf(this.backends[levels[i]]) === -1) {
+            this.uniqueBackends.push(this.backends[levels[i]]);
         }
     }
 }
