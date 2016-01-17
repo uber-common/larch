@@ -104,6 +104,7 @@ test('reservoirbackend correctly limits logs', function t1(assert) {
     assert.end();
 });
 
+/*eslint max-statements: [2, 40]*/
 test('reservoirbackend uses statsd client correctly', function t1(assert) {
     var backend = FakeBackend();
     var timer = Timer(0);
