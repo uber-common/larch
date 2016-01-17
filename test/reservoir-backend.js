@@ -142,7 +142,13 @@ test('reservoirbackend uses statsd client correctly', function t1(assert) {
 
     assert.deepEquals(
         backend.logs[0].meta,
-        {dropCount: {error: 1}, flushInterval: 50, size: 5},
+        {
+            dropCount: {
+                error: 1
+            },
+            flushInterval: 50,
+            size: 5
+        },
         'first log contains correct meta'
     );
 

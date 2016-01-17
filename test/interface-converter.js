@@ -30,7 +30,9 @@ test('uses a logtron backend when passed a logtron', function t1(a) {
         writeEntry: function writeEntry() {}
     };
 
-    var logger = createLarch({logger: fakeLogtron});
+    var logger = createLarch({
+        logger: fakeLogtron
+    });
 
     a.ok(logger.backends.length === 1, 'created larch has 1 backend');
     a.ok(
@@ -43,9 +45,13 @@ test('uses a logtron backend when passed a logtron', function t1(a) {
 
 test('just returns it when passed a larch', function t1(a) {
     var backend = new FakeBackend();
-    var larch = new Larch({backends: [backend]});
+    var larch = new Larch({
+        backends: [backend]
+    });
 
-    var logger = createLarch({logger: larch});
+    var logger = createLarch({
+        logger: larch
+    });
 
     a.ok(logger === larch, 'larch is returned');
 
