@@ -27,7 +27,7 @@ var FakeBackend = require('./lib/fake-backend');
 
 test('uses a logtron backend when passed a logtron', function t1(a) {
     var fakeLogtron = {
-        writeEntry: function () {}
+        writeEntry: function writeEntry() {}
     };
 
     var logger = createLarch({logger: fakeLogtron});
