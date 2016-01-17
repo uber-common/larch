@@ -45,7 +45,8 @@ function createLarchWithLogger(config) {
 }
 
 function isLogtronLogger(logger) {
-    return typeof logger === 'object' && typeof logger.writeEntry === 'function';
+    return typeof logger === 'object' &&
+        typeof logger.writeEntry === 'function';
 }
 
 function isLarchLogger(logger) {
