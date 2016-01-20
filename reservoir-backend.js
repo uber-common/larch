@@ -184,6 +184,9 @@ ReservoirBackend.prototype.flush = function flush() {
     var copy = self.records.slice(0);
     self.backend.logMany(copy, onLoggingDone);
 
+    self.records.length = 0;
+    self.count = 0;
+
     function onLoggingDone(err) {
         // TODO: what to do when flush fails? Generate a log message?
         if (err) {
@@ -197,9 +200,6 @@ ReservoirBackend.prototype.flush = function flush() {
 
         self.statsd.timing('larch.flushTime', self.now() - start);
     }
-
-    self.records.length = 0;
-    self.count = 0;
 };
 
 ReservoirBackend.prototype.willSample = function willSample(level, msg) {
