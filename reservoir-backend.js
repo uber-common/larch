@@ -182,24 +182,33 @@ ReservoirBackend.prototype.flush = function flush() {
     }
 
     var copy = self.records.slice(0);
-    self.backend.logMany(copy, onLoggingDone);
+    var req = new LoggingRequest(self, start);
+    self.backend.logMany(copy, req.onLoggingDone, req);
 
     self.records.length = 0;
     self.count = 0;
+};
 
-    function onLoggingDone(err) {
-        // TODO: what to do when flush fails? Generate a log message?
-        if (err) {
-            var count = 1;
-            if (err.count) {
-                count = err.count;
-            }
+function LoggingRequest(reservoir, start) {
+    this.reservoir = reservoir;
+    this.start = start;
+}
 
-            self.statsd.increment('larch.errors', count);
+LoggingRequest.prototype.onLoggingDone =
+function onLoggingDone(err) {
+    // TODO: what to do when flush fails? Generate a log message?
+    if (err) {
+        var count = 1;
+        if (err.count) {
+            count = err.count;
         }
 
-        self.statsd.timing('larch.flushTime', self.now() - start);
+        self.reservoir.statsd.increment('larch.errors', count);
     }
+
+    self.reservoir.statsd.timing(
+        'larch.flushTime', self.reservoir.now() - self.start
+    );
 };
 
 ReservoirBackend.prototype.willSample = function willSample(level, msg) {
