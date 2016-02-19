@@ -21,11 +21,19 @@
 'use strict';
 
 var assert = require('assert');
+var TypedError = require('error/typed');
 
 var LogtronBackend = require('./logtron-backend');
 var Larch = require('./larch');
 
 module.exports = createLarchWithLogger;
+
+var UnrecognizedLoggerError = new TypedError({
+    type: 'larch.unrecognized-logger',
+    message: 'Unrecognized logger type; don\'t know how to convert logger ' +
+        'of type {constructor} to Larch logger. Please provide a Logtron, ' +
+        'DebugLogtron (^5.2.0), or Larch instance.'
+});
 
 function createLarchWithLogger(config) {
     assert(config.logger, 'createLarchWithLogger requires a logger');
@@ -41,6 +49,7 @@ function createLarchWithLogger(config) {
         var logtronBackend = new LogtronBackend(backendLogger);
         config.backends = [logtronBackend];
         var larch = new Larch(config);
+        // Just lol forward these methods
         larch.whitelist = backendLogger.whitelist.bind(backendLogger);
         larch.items = backendLogger.items.bind(backendLogger);
         return larch;
@@ -48,6 +57,19 @@ function createLarchWithLogger(config) {
         var logtronBackend = new LogtronBackend(backendLogger);
         config.backends = [logtronBackend];
         return new Larch(config);
+    } else {
+        var consName = typeof backendLogger;
+        if (typeof backendLogger === 'object') {
+            consName = backendLogger.constructor.name;
+            if (backendLogger.constructor === Object) {
+                consName = '(anonymous object)';
+            } else if (backendLogger.constructor === Function) {
+                consName = 'Function (name: ' + backendLogger.name + ')';
+            }
+        }
+        throw new UnrecognizedLoggerError({
+            constructor: consName
+        });
     }
 }
 
@@ -56,7 +78,7 @@ function isLogtronLogger(logger) {
 }
 
 function isDebugLogtron(logger) {
-    return typeof logger === 'object' && typeof logger.whitelist === 'function';
+    return isLogtronLogger(logger) && typeof logger.whitelist === 'function';
 }
 
 function isLarchLogger(logger) {

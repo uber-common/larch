@@ -41,13 +41,35 @@ test('uses a logtron backend when passed a logtron', function t1(a) {
     a.end();
 });
 
-test('just returns it when passed a larch', function t1(a) {
+test('just returns it when passed a larch', function t2(a) {
     var backend = new FakeBackend();
     var larch = new Larch({backends: [backend]});
 
     var logger = createLarch({logger: larch});
 
     a.ok(logger === larch, 'larch is returned');
+
+    a.end();
+});
+
+test('returns a nice error when given an anon object', function t3(a) {
+    var logger = {error: console.log};
+
+    a.throws(function () {
+        var larch = createLarch({logger: logger});
+    }, /Unrecognized logger type; don't know how to convert logger of type \(anonymous object\) to Larch logger/);
+
+    a.end();
+});
+
+test('error message for wrong constructor type', function t4(a) {
+    function MySpecialLogger() {}
+
+    var logger = new MySpecialLogger();
+
+    a.throws(function () {
+        var larch = createLarch({logger: logger});
+    }, /Unrecognized logger type; don't know how to convert logger of type MySpecialLogger to Larch logger/);
 
     a.end();
 });
