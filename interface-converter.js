@@ -35,17 +35,28 @@ function createLarchWithLogger(config) {
     // object is okay here
     delete config.logger;
 
-    if (isLogtronLogger(backendLogger)) {
+    if (isLarchLogger(backendLogger)) {
+        return backendLogger;
+    } else if (isDebugLogtron(backendLogger)) {
+        var logtronBackend = new LogtronBackend(backendLogger);
+        config.backends = [logtronBackend];
+        var larch = new Larch(config);
+        larch.whitelist = backendLogger.whitelist.bind(backendLogger);
+        larch.items = backendLogger.items.bind(backendLogger);
+        return larch;
+    } else if (isLogtronLogger(backendLogger)) {
         var logtronBackend = new LogtronBackend(backendLogger);
         config.backends = [logtronBackend];
         return new Larch(config);
-    } else if (isLarchLogger(backendLogger)) {
-        return backendLogger;
     }
 }
 
 function isLogtronLogger(logger) {
     return typeof logger === 'object' && typeof logger.writeEntry === 'function';
+}
+
+function isDebugLogtron(logger) {
+    return typeof logger === 'object' && typeof logger.whitelist === 'function';
 }
 
 function isLarchLogger(logger) {
