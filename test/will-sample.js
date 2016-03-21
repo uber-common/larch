@@ -68,7 +68,6 @@ test('ReservoirBackend willSample is accurate', function t1(assert) {
     samplingDecisions[5] = reservoir.willSample('error');
     reservoir.slog(new Record('warn', 'thing failed', {}));
 
-    console.log('samplingDecisions', samplingDecisions);
     assert.deepEqual(samplingDecisions, [true, true, true, true, true, false]);
 
     timer.advance(50);
