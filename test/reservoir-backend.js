@@ -102,13 +102,15 @@ test('reservoirbackend uses statsd client correctly', function t1(assert) {
     var backend = FakeBackend();
     var timer = Timer(0);
     var statsd = new NullStatsd();
+    var globalStatsd = new NullStatsd();
 
     var reservoir = ReservoirBackend({
         backend: backend,
         size: 5,
         timers: timer,
         rangeRand: fakeRangeRand,
-        statsd: statsd
+        statsd: statsd,
+        globalStatsd: globalStatsd
     });
 
     reservoir.bootstrap(noop);
@@ -193,6 +195,14 @@ test('reservoirbackend uses statsd client correctly', function t1(assert) {
         }],
         'correct statsd records'
     );
+
+    delete globalStatsd._buffer._elements[0].time;
+    assert.deepEqual(globalStatsd._buffer._elements[0], {
+        type: 'ms',
+        name: 'larch.flushTime',
+        value: null,
+        delta: null
+    });
 
     reservoir.destroy(noop);
 
