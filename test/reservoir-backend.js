@@ -102,7 +102,7 @@ test('reservoirbackend uses statsd client correctly', function t1(assert) {
     var backend = FakeBackend();
     var timer = Timer(0);
     var statsd = new NullStatsd();
-    var globalStatsd = new NullStatsd();
+    var clusterStatsd = new NullStatsd();
 
     var reservoir = ReservoirBackend({
         backend: backend,
@@ -110,7 +110,7 @@ test('reservoirbackend uses statsd client correctly', function t1(assert) {
         timers: timer,
         rangeRand: fakeRangeRand,
         statsd: statsd,
-        globalStatsd: globalStatsd
+        clusterStatsd: clusterStatsd
     });
 
     reservoir.bootstrap(noop);
@@ -196,8 +196,8 @@ test('reservoirbackend uses statsd client correctly', function t1(assert) {
         'correct statsd records'
     );
 
-    delete globalStatsd._buffer._elements[0].time;
-    assert.deepEqual(globalStatsd._buffer._elements[0], {
+    delete clusterStatsd._buffer._elements[0].time;
+    assert.deepEqual(clusterStatsd._buffer._elements[0], {
         type: 'ms',
         name: 'larch.flushTime',
         value: null,
