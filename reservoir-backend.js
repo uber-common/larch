@@ -101,6 +101,8 @@ function ReservoirBackend(options) {
         };
     }
 
+    this.clusterStatsd = options.clusterStatsd || null;
+
     this.timer = null;
     this.count = 0;
     this.records = [];
@@ -195,7 +197,11 @@ ReservoirBackend.prototype.flush = function flush() {
             self.statsd.increment('larch.errors', count);
         }
 
-        self.statsd.timing('larch.flushTime', self.now() - start);
+        var flushDelta = self.now() - start;
+        self.statsd.timing('larch.flushTime', flushDelta);
+        if (self.clusterStatsd) {
+            self.clusterStatsd.timing('larch.flushTime', flushDelta);
+        }
     }
 
     self.records.length = 0;
