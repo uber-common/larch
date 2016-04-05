@@ -7,33 +7,52 @@ term, it may replace Logtron. It can be used like this:
 ```javascript
 var Logtron = require('logtron');
 
+var Larch = require('larch');
+var LogtronBackend = require('larch/logtron-backend');
 var ReservoirBackend = require('larch/reservoir-backend');
-var LevelRouterBackend = require('larch/level-router-backend');
-var DropBackend = require('larch/drop-backend');
 
+var clients = ...
 var logtronLogger = Logtron({...});
 
-var reservoir = ReservoirBackend({
-    backend: LogtronBackend(logtronLogger),
-    statsd: options.statsd
+var logger = Larch({
+    backends: [ReservoirBackend({
+        backend: LogtronBackend(logtronLogger),
+        statsd: clients.statsd,
+        clusterStatsd: clients.clusterStatsd,
+        size: 100,
+        flushInterval: 50
+    })]
 });
-
-// debug logs sent to drop backend; rest of logs are reservoir sampled
-// then sent to Logtron
-var levelRouterBackend = LevelRouterBackend({
-    backends: {
-        debug: DropBackend(),
-        default: reservoir
-    }
-});
-
-var logger = LarchLogger({
-    backends: [levelRouterBackend],
-    statsd: options.statsd
-});
+logger.bootstrap();
 
 logger.warn('warn string', {meta: 'object'});
 ```
+
+## Docs
+
+## `Larch({ backends: Array })`
+
+`Larch` is a constructor that takes a list of backends.
+
+Generally you want to use the `ReservoirBackend`
+
+### `larch.bootstrap()`
+
+Remember to call `bootstrap()` on larch to start the reservoir.
+
+## `ReservoirBackend(opts)`
+
+`ReservoirBackend` takes a set of options including:
+
+ - `backend`; what to write to if we sample the log call
+ - `statsd`; where to emit stats.
+ - `clusterStatsd`; where to emit cluster-wide latency stats.
+ - `size`; The amount of records that can be logged per interval
+ - `flushInterval`; How often we should flush the reservoir
+
+The reservoir will log (1000 / `flushInterval`) * `size` records per second.
+
+This means by default it will log `2000` records per second.
 
 ## Using `willSample($level, $msg)`
 
