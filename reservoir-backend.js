@@ -186,6 +186,12 @@ ReservoirBackend.prototype.flush = function flush() {
     var copy = self.records.slice(0);
     self.backend.logMany(copy, onLoggingDone);
 
+    var syncDelta = self.now() - start;
+    self.statsd.timing('larch.sync.flushTime', syncDelta);
+    if (self.clusterStatsd) {
+        self.clusterStatsd.timing('larch.sync.flushTime', syncDelta);
+    }
+
     function onLoggingDone(err) {
         // TODO: what to do when flush fails? Generate a log message?
         if (err) {

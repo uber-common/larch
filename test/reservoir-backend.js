@@ -163,9 +163,10 @@ test('reservoirbackend uses statsd client correctly', function t1(assert) {
     );
 
     delete statsd._buffer._elements[3].time;
+    delete statsd._buffer._elements[4].time;
 
     assert.deepEqual(
-        statsd._buffer._elements.slice(0, 4),
+        statsd._buffer._elements.slice(0, 5),
         [{
             type: 'c',
             name: 'larch.dropped.error',
@@ -190,6 +191,12 @@ test('reservoirbackend uses statsd client correctly', function t1(assert) {
         {
             type: 'ms',
             name: 'larch.flushTime',
+            value: null,
+            delta: null
+        },
+        {
+            type: 'ms',
+            name: 'larch.sync.flushTime',
             value: null,
             delta: null
         }],
