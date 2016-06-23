@@ -183,8 +183,10 @@ ReservoirBackend.prototype.flush = function flush() {
         self.logCount[keys[i]] = 0;
     }
 
-    var copy = self.records.slice(0);
-    self.backend.logMany(copy, onLoggingDone);
+    if (self.records.length > 0) {
+        var copy = self.records.slice(0);
+        self.backend.logMany(copy, onLoggingDone);
+    }
 
     var syncDelta = self.now() - start;
     self.statsd.timing('larch.sync.flushTime', syncDelta);
@@ -293,9 +295,7 @@ ReservoirBackend.prototype.countLog = function countLog(level) {
 ReservoirBackend.prototype.destroy = function destroy(cb) {
     var self = this;
 
-    if (self.records.length) {
-        self.flush();
-    }
+    self.flush();
     self.timers.clearTimeout(self.timer);
     self.backend.destroy(cb);
 };
