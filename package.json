@@ -1,6 +1,6 @@
 {
   "name": "larch",
-  "version": "1.4.3",
+  "version": "1.5.0",
   "description": "reservoir sampled logger",
   "main": "larch.js",
   "scripts": {
