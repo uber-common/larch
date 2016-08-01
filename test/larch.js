@@ -142,3 +142,27 @@ test('enabling Larch log after disable actually works', function t3(assert) {
 
     assert.end();
 });
+
+
+test('enabling Larch slog after disable actually works', function t3(assert) {
+    var backend = FakeBackend();
+
+    var logger = Larch({backends: [backend]});
+    logger.disableLog('test');
+    logger.sinfo('test', {foo: 'bar'});
+
+    assert.equal(backend.logs.length, 0);
+    logger.enableLog('test');
+    logger.sinfo('test', {foo: 'bar'});
+
+    var record = backend.slogs[0].toJSON();
+    delete record.time;
+
+    assert.deepEqual(
+        record,
+        {foo: 'bar', message: 'test', level: 'info'},
+        'backend#slog receives record'
+    );
+
+    assert.end();
+});
