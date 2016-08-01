@@ -39,7 +39,7 @@ function Larch(options) {
     assert(Array.isArray(self.backends), 'options.backends must be array');
     self.enableDebug(true);
 
-    self.disabledLogs = {};
+    self.disabledLogs = Object.create(null);
 
     if (self.backends.length === 1) {
         self.log = self.logSingleBackend;
@@ -219,7 +219,7 @@ Larch.prototype.access = function access(msg, meta, cb) {
 };
 
 Larch.prototype.warn = function warn(msg, meta, cb) {
-    this.tryLog('log', 'warn', msg, meta, cb);
+    this.tryLog('warn', msg, meta, cb);
 };
 
 Larch.prototype.error = function error(msg, meta, cb) {
