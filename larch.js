@@ -39,6 +39,8 @@ function Larch(options) {
     assert(Array.isArray(self.backends), 'options.backends must be array');
     self.enableDebug(true);
 
+    self.disabledLogs = Object.create(null);
+
     if (self.backends.length === 1) {
         self.log = self.logSingleBackend;
         self.slog = self.slogSingleBackend;
@@ -61,6 +63,14 @@ function enableDebug(enabled) {
         self.trace = noopLog;
         self.debug = noopLog;
     }
+};
+
+Larch.prototype.disableLog = function disableLog(name) {
+    this.disabledLogs[name] = true;
+};
+
+Larch.prototype.enableLog = function enableLog(name) {
+    this.disabledLogs[name] = false;
 };
 
 Larch.prototype.logSingleBackend =
@@ -168,60 +178,84 @@ Larch.prototype.destroy = function destroy(cb) {
     }
 };
 
+Larch.prototype.logIsEnabled = function logIsEnabled(name) {
+    return !this.disabledLogs[name];
+};
+
+Larch.prototype.tryLog = function tryLog(level, msg, meta, cb) {
+    if (!this.logIsEnabled(msg)) {
+        if (typeof cb === 'function') {
+            cb();
+        }
+        return;
+    }
+    this.log(level, msg, meta, cb);
+};
+
+Larch.prototype.stryLog = function stryLog(level, msg, meta, cb) {
+    if (!this.logIsEnabled(msg)) {
+        if (typeof cb === 'function') {
+            cb();
+        }
+        return;
+    }
+    this.slog(level, msg, meta, cb);
+};
+
 Larch.prototype.trace = function trace(msg, meta, cb) {
-    this.log('trace', msg, meta, cb);
+    this.tryLog('trace', msg, meta, cb);
 };
 
 Larch.prototype.debug = function debug(msg, meta, cb) {
-    this.log('debug', msg, meta, cb);
+    this.tryLog('debug', msg, meta, cb);
 };
 
 Larch.prototype.info = function info(msg, meta, cb) {
-    this.log('info', msg, meta, cb);
+    this.tryLog('info', msg, meta, cb);
 };
 
 Larch.prototype.access = function access(msg, meta, cb) {
-    this.log('access', msg, meta, cb);
+    this.tryLog('access', msg, meta, cb);
 };
 
 Larch.prototype.warn = function warn(msg, meta, cb) {
-    this.log('warn', msg, meta, cb);
+    this.tryLog('warn', msg, meta, cb);
 };
 
 Larch.prototype.error = function error(msg, meta, cb) {
-    this.log('error', msg, meta, cb);
+    this.tryLog('error', msg, meta, cb);
 };
 
 Larch.prototype.fatal = function fatal(msg, meta, cb) {
-    this.log('fatal', msg, meta, cb);
+    this.tryLog('fatal', msg, meta, cb);
 };
 
 Larch.prototype.strace = function strace(msg, meta, cb) {
-    this.slog('trace', msg, meta, cb);
+    this.stryLog('trace', msg, meta, cb);
 };
 
 Larch.prototype.sdebug = function sdebug(msg, meta, cb) {
-    this.slog('debug', msg, meta, cb);
+    this.stryLog('debug', msg, meta, cb);
 };
 
 Larch.prototype.sinfo = function sinfo(msg, meta, cb) {
-    this.slog('info', msg, meta, cb);
+    this.stryLog('info', msg, meta, cb);
 };
 
 Larch.prototype.saccess = function saccess(msg, meta, cb) {
-    this.slog('access', msg, meta, cb);
+    this.stryLog('access', msg, meta, cb);
 };
 
 Larch.prototype.swarn = function swarn(msg, meta, cb) {
-    this.slog('warn', msg, meta, cb);
+    this.stryLog('warn', msg, meta, cb);
 };
 
 Larch.prototype.serror = function serror(msg, meta, cb) {
-    this.slog('error', msg, meta, cb);
+    this.stryLog('error', msg, meta, cb);
 };
 
 Larch.prototype.sfatal = function sfatal(msg, meta, cb) {
-    this.slog('fatal', msg, meta, cb);
+    this.stryLog('fatal', msg, meta, cb);
 };
 
 function noopLog() {
