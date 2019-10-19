@@ -186,7 +186,7 @@ Larch.prototype.destroy = function destroy(cb) {
 
 Larch.prototype.isEnabled = function isEnabled(level, msg) {
     // Discard logs with lower priority than the minimum
-    if (priority[level] < this.minLevel) {
+    if (priority[level] < priority[this.minLevel]) {
         return false;
     }
 
