@@ -108,6 +108,27 @@ test('calling Larch#slog correctly calls $Backend#slog', function t3(assert) {
     assert.end();
 });
 
+test('calling Larch w disabled level wont log', function t3(assert) {
+    var backend = FakeBackend();
+
+    var logger = Larch({
+        backends: [backend],
+        minLevel: 'error'
+    });
+
+    logger.info('info test', {foo: 'bar'});
+    logger.error('error test', {foo: 'baz'});
+
+    assert.equal(backend.logs.length, 1);
+
+    var logged = backend.logs[0].toJSON();
+    delete logged.time;
+
+    assert.deepEqual(logged, {foo: 'baz', message: 'error test', level:'error'});
+
+    assert.end();
+});
+
 test('calling Larch w disabled log wont log', function t3(assert) {
     var backend = FakeBackend();
 
